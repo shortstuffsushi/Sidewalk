@@ -55,6 +55,23 @@ public class XPathSelector {
             }
           }
         }
+        else {
+          Queue<XmlNode> childrenToCheck = new LinkedList<XmlNode>();
+          childrenToCheck.add(matchNode);
+          XmlNode ancestor = null;
+          while ((ancestor = childrenToCheck.poll()) != null) {
+            childrenToCheck.addAll(ancestor.getAllChildren());
+
+            if (tokenType == TokenType.ANCESTOR) {
+              tokenMatches.addAll(ancestor.getChildren(tokenValue));
+            }
+            else if (tokenType == TokenType.ANCESTOR_ATTRIBUTE) {
+              if (ancestor.hasAttribute(tokenValue)) {
+                tokenMatches.add(ancestor.getAttribute(tokenValue));
+              }
+            }
+          }
+        }
       }
 
       if (tokenMatches.isEmpty()) {
