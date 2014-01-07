@@ -5,6 +5,12 @@
   <version>0.0.1</version>
   <name>sidewalk</name>
   <description>An XPath library wrapper on JNodalXML</description>
+  <repositories>
+    <repository>
+        <id>zachtaylor-snapshots</id>
+        <url>https://github.com/zachtaylor/zachtaylor-mvn-repo/raw/master/snapshots</url>
+    </repository>
+  </repositories>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
@@ -22,7 +28,7 @@
     <dependency>
       <groupId>org.zachtaylor</groupId>
       <artifactId>jnodalxml</artifactId>
-      <version>0.0.x</version>
+      <version>0.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>
