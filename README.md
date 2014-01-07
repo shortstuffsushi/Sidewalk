@@ -12,7 +12,7 @@ ________/________________/_________________/____________________/_______________
 
 Sidewalk is a Java library built in collaboration with [JNodalXML](https://github.com/zachtaylor/JNodalXML). Where JNodal focuses on the XML document (parsing, modifying, creating, and writing), Sidewalk exists for interaction, specifically through XPath.
 
-Sidewalk is a Maven project, but JNodal can't currently be checked out via Maven. The approach I'm currently taking is to check out both, and Maven in Eclipse is able to resolve the dependency as a local one that way. I'm debating uploading the dependencies into this project, but haven't yet.
+Sidewalk is a Maven project, as is JNodal. If you don't want to use Maven to manage the dependencies, you can check out the pom.xml to see where the required projects are located.
 
 Some of the goals in the project include the following XPath items
 - [x] Direct child node (/nodeName)
