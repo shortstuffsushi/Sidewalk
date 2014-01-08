@@ -1,17 +1,29 @@
 package com.grahammueller.sidewalk.xpath;
 
 public class XPathToken {
-  public enum TokenType { CHILD, ANCESTOR, CHILD_ATTRIBUTE, ANCESTOR_ATTRIBUTE }
+  public enum TokenLevel { CHILD, DESCENDANT }
+  public enum TokenType { NODE, ATTRIBUTE }
 
   /**
    * Constructor for a token
    * 
+   * @param level Token level
    * @param type Token type
    * @param value Token value
    */
-  public XPathToken(TokenType type, String value) {
+  public XPathToken(TokenLevel level, TokenType type, String value) {
+    _level = level;
     _type = type;
     _value = value;
+  }
+
+  /**
+   * Getter for the level of the token
+   * 
+   * @return This token's level
+   */
+  public TokenLevel getLevel() {
+    return _level;
   }
 
   /**
@@ -33,9 +45,10 @@ public class XPathToken {
   }  
 
   public String toString() {
-    return String.format("%s %s", String.valueOf(_type), _value);
+    return String.format("%s %s %s", String.valueOf(_level), String.valueOf(_type), _value);
   }
 
+  private final TokenLevel _level;
   private final TokenType _type;
   private final String _value;
 }

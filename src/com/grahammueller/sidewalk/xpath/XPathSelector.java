@@ -7,6 +7,7 @@ import java.util.Queue;
 
 import org.zachtaylor.jnodalxml.XmlNode;
 
+import com.grahammueller.sidewalk.xpath.XPathToken.TokenLevel;
 import com.grahammueller.sidewalk.xpath.XPathToken.TokenType;
 
 public class XPathSelector {
@@ -38,6 +39,7 @@ public class XPathSelector {
 
     XPathToken token = null;
     while ((token = _tokens.poll()) != null) {
+      TokenLevel tokenLevel = token.getLevel();
       TokenType tokenType = token.getType();
       String tokenValue = token.getValue();
       List<Object> tokenMatches = new ArrayList<Object>();
@@ -45,31 +47,17 @@ public class XPathSelector {
       for (Object match : matches) {
         XmlNode matchNode = (XmlNode) match;
 
-        if (tokenType == TokenType.CHILD || tokenType == TokenType.CHILD_ATTRIBUTE) {
-          if (tokenType == TokenType.CHILD) {
-            tokenMatches.addAll(matchNode.getChildren(tokenValue));
-          }
-          else if (tokenType == TokenType.CHILD_ATTRIBUTE) {
-            if (matchNode.hasAttribute(tokenValue)) {
-              tokenMatches.add(matchNode.getAttribute(tokenValue));
-            }
-          }
+        if (tokenLevel == TokenLevel.CHILD) {
+          tokenMatches.addAll(matchesOnNodeForTypeWithValue(matchNode, tokenType, tokenValue));
         }
-        else {
+        else if (tokenLevel == TokenLevel.DESCENDANT) {
           Queue<XmlNode> childrenToCheck = new LinkedList<XmlNode>();
           childrenToCheck.add(matchNode);
-          XmlNode ancestor = null;
-          while ((ancestor = childrenToCheck.poll()) != null) {
-            childrenToCheck.addAll(ancestor.getAllChildren());
+          XmlNode descendant = null;
+          while ((descendant = childrenToCheck.poll()) != null) {
+            childrenToCheck.addAll(descendant.getAllChildren());
 
-            if (tokenType == TokenType.ANCESTOR) {
-              tokenMatches.addAll(ancestor.getChildren(tokenValue));
-            }
-            else if (tokenType == TokenType.ANCESTOR_ATTRIBUTE) {
-              if (ancestor.hasAttribute(tokenValue)) {
-                tokenMatches.add(ancestor.getAttribute(tokenValue));
-              }
-            }
+            tokenMatches.addAll(matchesOnNodeForTypeWithValue(descendant, tokenType, tokenValue));
           }
         }
       }
@@ -79,6 +67,29 @@ public class XPathSelector {
       }
 
       matches = tokenMatches;
+    }
+
+    return matches;
+  }
+
+  private List<Object> matchesOnNodeForTypeWithValue(XmlNode node, TokenType type, String value) {
+    List<Object> matches = new ArrayList<Object>();
+
+    if (type == TokenType.NODE) {
+      if (value.equals("*")) {
+        matches.addAll(node.getAllChildren());
+      }
+      else {
+        matches.addAll(node.getChildren(value));
+      }
+    }
+    else if (type == TokenType.ATTRIBUTE) {
+      if (value.equals("*")) {
+        matches.addAll(node.getAllAttributes());
+      }
+      else if (node.hasAttribute(value)) {
+        matches.add(node.getAttribute(value));
+      }
     }
 
     return matches;
@@ -107,15 +118,15 @@ public class XPathSelector {
       XPathToken token = null;
 
       switch (tokenString.charAt(0)) {
-        case 'a': token = new XPathToken(TokenType.ANCESTOR, tokenString.substring(2)); break;
-        case 'c': token = new XPathToken(TokenType.CHILD, tokenString.substring(2)); break;
+        case 'a': token = new XPathToken(TokenLevel.DESCENDANT, TokenType.NODE, tokenString.substring(2)); break;
+        case 'c': token = new XPathToken(TokenLevel.CHILD, TokenType.NODE, tokenString.substring(2)); break;
         case '@':
             char attrType = tokenString.charAt(1);
             if (attrType == 'a') {
-              token = new XPathToken(TokenType.ANCESTOR_ATTRIBUTE, tokenString.substring(3)); break;
+              token = new XPathToken(TokenLevel.DESCENDANT, TokenType.ATTRIBUTE, tokenString.substring(3)); break;
             }
             else if (attrType == 'c') {
-              token = new XPathToken(TokenType.CHILD_ATTRIBUTE, tokenString.substring(3)); break;
+              token = new XPathToken(TokenLevel.CHILD, TokenType.ATTRIBUTE, tokenString.substring(3)); break;
             }
       }
 
